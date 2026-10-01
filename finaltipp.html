@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typing Trainer</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font:14px "Segoe UI",Tahoma,Arial,sans-serif;background:#e9ecf1;color:#1c2333;height:100vh;display:flex;flex-direction:column}
+header{background:#22314d;color:#fff;padding:8px 14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+header b{font-size:17px}
+header button{background:none;border:0;color:#cdd6e8;font:inherit;padding:6px 10px;cursor:pointer;border-radius:4px}
+header button:hover,header button.on{background:#38496b;color:#fff}
+header #nk{border:1px solid #4b5d82}
+#tmg{margin-left:auto;display:flex;align-items:center;gap:6px;color:#cdd6e8}
+header input{width:56px;padding:4px 6px;border-radius:4px;border:1px solid #4b5d82;background:#1a2640;color:#fff;font:inherit}
+main{flex:1;display:flex;min-height:0}
+aside{width:210px;background:#f7f8fa;border-right:1px solid #c5ccd8;overflow:auto}
+aside h3{margin:0;padding:10px 12px;font-size:13px;color:#56607a;border-bottom:1px solid #dde1ea}
+.li{padding:9px 12px;border-bottom:1px solid #e6e9f0;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+.li:hover{background:#e6edfa}.li.on{background:#cfdcf7}
+.li small{color:#56607a;font-family:Consolas,monospace}.li .ck{color:#1f8f4e;font-weight:700}
+section{flex:1;padding:16px;overflow:auto;display:none;min-width:0}
+section.on{display:block}
+.box{background:#fff;border:1px solid #c5ccd8;border-radius:4px;padding:14px}
+#tl{font:22px Consolas,"Courier New",monospace;white-space:pre;overflow:hidden;line-height:1.7;text-align:center}
+#tl .d{color:#8a93a8}#tl .c{background:#2f6fdb;color:#fff;border-radius:2px}#tl .c.bad{background:#d93636}
+#tl .n{color:#9aa2b5}
+#ty{font:22px Consolas,"Courier New",monospace;white-space:pre;margin-top:10px;background:#fbfcfe;border:1px solid #9aa6bf;border-radius:3px;padding:8px 12px;min-height:46px;overflow:hidden;text-align:center}
+#ty i{display:inline-block;width:2px;height:24px;background:#2f6fdb;vertical-align:middle;animation:b 1s steps(1) infinite}
+@keyframes b{50%{opacity:0}}
+#kb{margin:14px auto 0;width:max-content;max-width:100%;overflow-x:auto;padding-bottom:4px}
+.r{display:flex;gap:4px;margin-bottom:4px}.r:nth-child(2){margin-left:22px}.r:nth-child(3){margin-left:34px}.r:nth-child(4){margin-left:52px}
+.k{width:40px;height:40px;border:1px solid #8b93a6;border-radius:5px;display:flex;align-items:center;justify-content:center;font:15px Consolas,monospace;color:#222}
+.k.sp{width:280px;margin-left:110px}.k.en{width:62px}
+.k.nx{outline:3px solid #1c2333;filter:brightness(.82);font-weight:700}
+#st{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+#st div{flex:1;min-width:90px;background:#fff;border:1px solid #c5ccd8;border-radius:4px;padding:6px 10px;color:#56607a}
+#st b{display:block;font-size:19px;color:#1c2333}
+.hint{color:#56607a;margin:8px 2px}
+h2{margin:0 0 10px;font-size:19px}
+table{border-collapse:collapse;width:100%;background:#fff}
+th,td{border:1px solid #d3d8e2;padding:6px 10px;text-align:left}th{background:#eef1f6}
+canvas{width:100%;height:240px;background:#fff;border:1px solid #c5ccd8;border-radius:4px;margin-bottom:14px}
+button.b{background:#2f6fdb;color:#fff;border:0;border-radius:4px;padding:8px 14px;font:inherit;cursor:pointer}
+button.b.g{background:#e1e5ee;color:#1c2333}
+#dlg{position:fixed;inset:0;background:rgba(20,28,45,.55);display:none;align-items:center;justify-content:center}
+#dlg .box{width:340px;padding:20px}
+#dlg p{display:flex;justify-content:space-between;margin:6px 0}
+#dlg .bt{display:flex;gap:8px;margin-top:16px}
+@media(max-width:700px){aside{width:130px}.li small{display:none}}
+</style></head><body>
+<header><b>Typing Trainer</b><button id="nl" class="on">Lessons</button><button id="np">Progress</button>
+<div id="tmg" title="Set both to 0 for no time limit">Timer <input id="tmm" type="number" min="0" value="0"> min <input id="tms" type="number" min="0" value="0"> sec</div>
+<button id="nk">Keyboard: On</button></header>
+<main>
+<aside><h3>Lessons</h3><div id="list"></div></aside>
+<section id="v-home" class="on"><h2>Pick a lesson</h2><p class="hint">Choose a lesson on the left to start. Lines end with ↵ — press Enter to move to the next line. Esc leaves the lesson.</p><p class="hint">Timer (top right): set your own minutes and seconds, or leave both at 0 to finish when the text ends. It applies from the next time you start a lesson.</p></section>
+<section id="v-train">
+<div class="box"><div id="tl"></div><div id="ty"></div></div>
+<div id="kb"></div>
+<div id="st"><div><span id="s1l">Time</span><b id="s1">0:00</b></div><div>Strokes<b id="s2">0</b></div><div>Errors<b id="s3">0</b></div><div>Accuracy<b id="s4">100%</b></div><div>Speed (strokes/min)<b id="s5">0</b></div></div>
+<p class="hint" id="lt"></p>
+</section>
+<section id="v-prog"><h2>Progress</h2><canvas id="cv" width="900" height="240"></canvas><div id="tb"></div><p><button class="b g" id="rs">Reset progress</button></p></section>
+</main>
+<div id="dlg"><div class="box"><h2 id="dh">Lesson complete</h2><div id="dr"></div><div class="bt"><button class="b g" id="d1">Repeat</button><button class="b" id="d2">Next lesson</button><button class="b g" id="d3">Close</button></div></div></div>
+<script>
+const LESSONS=["asdfjkl;","gh","qp","wo","ei","ru","ty","zm","xn","cvb","12","34","56","78","90"];
+const WORDS=("add ads ask all alas dad dads fad fads fall falls flag flags flak flask gag gags gall gas gash glad had hag hags hall halls hash has half jag jags lad lads lash lass sad sag saga salad sash shag shall slag slash flash alfalfa "+
+"he she her his hat that this the get gate hate heat height eight egg hedge edge age tag top toy try type they them then than there their three tree true trust tough thought throw write wrote water world would woman work week were where when what which with your you year yard youth yes yet yellow "+
+"pop pepper paper power people pretty poetry party piece quiet quote query quite proud prior rope ripe ride rid rice tire tier our out oil on one only open over order other ruler rule run rug rub "+
+"zoo zero zone zip zap maze mum mom man men name nine none noon next exit exam mix six box fox ox axe can cave cab cub cube club cover clever civic carve crab crib curve vibe vice voice very verb vast vet value brave bacon become mine mice mix music amaze")
+.split(" ");
+const FC=["#f4a6a6","#f6c48f","#f4e08a","#a9dea0","#bfe3f2","#a9dea0","#f6c48f","#f4a6a6","#d6d6d6"];
+const F={};function sf(k,f){for(const c of k)F[c]=f}
+sf("`1qaz",0);sf("2wsx",1);sf("3edc",2);sf("45rtfgvb",3);sf("67yuhjnm",4);sf("8ik,",5);sf("9ol.",6);sf("0p;/-=[]'\\",7);F[" "]=8;F["\n"]=7;
+const $=id=>document.getElementById(id);
+const load=()=>{try{return JSON.parse(localStorage.getItem("tt_res")||"[]")}catch(e){return[]}};
+const save=a=>{try{localStorage.setItem("tt_res",JSON.stringify(a))}catch(e){}};
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const pick=a=>a[Math.random()*a.length|0];
+let cur=-1,lines=[],li=0,ci=0,t0=0,strokes=0,errs=0,good=0,active=false,timer,lim=0;
+let kbOn=true;try{kbOn=localStorage.getItem("tt_kb")!=="0"}catch(e){}
+function applyKb(){$("kb").style.display=kbOn?"":"none";$("nk").textContent="Keyboard: "+(kbOn?"On":"Off")}
+try{const t=JSON.parse(localStorage.getItem("tt_lim")||"[0,0]");$("tmm").value=t[0]||0;$("tms").value=t[1]||0}catch(e){}
+function getLim(){const m=Math.max(0,+$("tmm").value||0),s=Math.max(0,+$("tms").value||0);return Math.round(m*60+s)}
+function saveLim(){try{localStorage.setItem("tt_lim",JSON.stringify([+$("tmm").value||0,+$("tms").value||0]))}catch(e){}}
+["tmm","tms"].forEach(id=>{const el=$(id);
+  el.addEventListener("change",saveLim);
+  el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key==="Escape"){saveLim();el.blur()}});
+  el.addEventListener("focus",()=>el.select())});
+const fmt=t=>Math.floor(t/60)+":"+String(Math.floor(t%60)).padStart(2,"0");
+
+function build(){
+  const res=load();
+  $("list").innerHTML=LESSONS.map((l,i)=>{const done=res.some(r=>r.l===i);
+    return `<div class="li${i===cur?" on":""}" data-i="${i}"><span>Lesson ${i+1}</span><small>${l.split("").join(" ")}</small>${done?'<span class="ck">✓</span>':""}</div>`}).join("");
+  $("list").querySelectorAll(".li").forEach(e=>e.onclick=()=>start(+e.dataset.i));
+}
+function kbBuild(){
+  const rows=["`1234567890-=","qwertyuiop[]\\","asdfghjkl;'\u21b5","zxcvbnm,./"];
+  let h=rows.map(r=>'<div class="r">'+[...r].map(c=>{const k=c==="\u21b5"?"\n":c;return `<div class="k${k==="\n"?" en":""}" data-k="${k}" style="background:${FC[F[k]]||"#eee"}">${c}</div>`}).join("")+"</div>").join("");
+  h+=`<div class="r"><div class="k sp" data-k=" " style="background:${FC[8]}"></div></div>`;
+  $("kb").innerHTML=h;
+}
+function gen(i){
+  const set=new Set();for(let j=0;j<=i;j++)for(const c of LESSONS[j])set.add(c);
+  const nw=[...LESSONS[i]],all=[...set],old=all.filter(c=>!nw.includes(c));
+  const oldL=old.filter(c=>/[a-z;]/.test(c)),allL=all.filter(c=>/[a-z;]/.test(c)),digs=all.filter(c=>/\d/.test(c));
+  const fw=WORDS.filter(w=>[...w].every(c=>set.has(c)));
+  const pw=fw.filter(w=>nw.some(c=>w.includes(c)));
+  const rw=fw.filter(w=>![...w].some(c=>nw.includes(c)));
+  const len_=(a,b)=>a+(Math.random()*b|0);
+  const rnd=(p,x)=>{let s="";for(let k=0;k<x;k++)s+=pick(p);return s};
+  const heavy=(p,x)=>{let s="";for(let k=0;k<x;k++)s+=Math.random()<.75?pick(nw):pick(p);return s};
+  const dig=i>=10,toks=[];let len=0;
+  while(len<250){
+    const r=Math.random();let t;
+    if(!dig){
+      if(r<.5)t=heavy(allL,len_(3,3));
+      else if(r<.7)t=pw.length?pick(pw):heavy(allL,4);
+      else if(r<.9)t=rw.length?pick(rw):(oldL.length?rnd(oldL,len_(3,3)):heavy(allL,4));
+      else{const a=rnd(allL,len_(3,3)).split("");a[Math.random()*a.length|0]=pick(nw);t=a.join("")}
+    }else{
+      if(r<.5)t=heavy(digs,len_(2,4));
+      else if(r<.65)t=rnd(digs,len_(2,4));
+      else t=(Math.random()<.6&&fw.length)?pick(fw):rnd(allL,len_(3,3));
+    }
+    toks.push(t);len+=t.length+1;
+  }
+  const out=[];let l="";
+  for(const t of toks){if(l&&(l+" "+t).length>34){out.push(l);l=t}else l=l?l+" "+t:t}
+  if(l)out.push(l);return out;
+}
+function show(v){["home","train","prog"].forEach(x=>$("v-"+x).classList.toggle("on",x===v));
+  $("nl").classList.toggle("on",v!=="prog");$("np").classList.toggle("on",v==="prog")}
+function start(i){
+  cur=i;lim=getLim();saveLim();lines=gen(i);li=0;ci=0;strokes=errs=good=0;t0=0;active=true;
+  $("dlg").style.display="none";build();show("train");
+  $("s1l").textContent=lim?"Time left":"Time";
+  $("lt").textContent=`Lesson ${i+1} — new keys: ${LESSONS[i].split("").join(" ")}`+(i?" (all earlier keys are mixed in)":"")+(lim?`. Timer: ${fmt(lim)}, starts with your first key.`:". No time limit — the lesson ends when the text ends.");
+  render();stats();clearInterval(timer);timer=setInterval(stats,250);
+}
+function render(){
+  const L=lines[li],n=lines[li+1]||"";
+  const cc=ci<L.length?L[ci]:"\u21b5";
+  $("tl").innerHTML=`<span class="d">${esc(L.slice(0,ci))}</span><span class="c" id="cc">${esc(cc)}</span>${esc(L.slice(ci+1))}${ci<L.length?'<span class="n">\u21b5</span>':""}\n<span class="n">${esc(n)}${n?"\u21b5":""}</span>`;
+  $("ty").innerHTML=esc(L.slice(0,ci))+"<i></i>";
+  const exp=ci<L.length?L[ci]:"\n";
+  document.querySelectorAll(".k").forEach(k=>k.classList.toggle("nx",k.dataset.k===exp));
+}
+function stats(){
+  if(active&&t0&&lim&&(Date.now()-t0)/1000>=lim){finish(true);return}
+  const el=t0?(Date.now()-t0)/1000:0;
+  $("s1").textContent=lim?fmt(Math.max(0,Math.ceil(lim-el))):fmt(el);
+  $("s2").textContent=strokes;$("s3").textContent=errs;
+  $("s4").textContent=(strokes?Math.round(good/strokes*100):100)+"%";
+  $("s5").textContent=el>1?Math.round(good/el*60):0;
+}
+document.addEventListener("keydown",e=>{
+  if(e.target&&e.target.tagName==="INPUT")return;
+  if(!active||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.key==="Escape"){active=false;clearInterval(timer);cur=-1;build();show("home");return}
+  if(e.key.length>1&&e.key!=="Enter")return;
+  e.preventDefault();
+  if(!t0)t0=Date.now();
+  const L=lines[li],exp=ci<L.length?L[ci]:"\n",k=e.key==="Enter"?"\n":e.key;
+  strokes++;
+  if(k===exp){good++;ci++;
+    if(!lim&&li===lines.length-1&&ci>=L.length){return finish(false)}
+    if(ci>L.length){li++;ci=0;if(lim&&li>=lines.length-1)lines.push(...gen(cur))}
+    render();
+  }else{errs++;const c=$("cc");c.classList.add("bad");setTimeout(()=>c.classList.remove("bad"),180)}
+  stats();
+});
+function finish(up){
+  if(!active)return;
+  active=false;clearInterval(timer);
+  let el=(Date.now()-t0)/1000;if(lim)el=Math.min(el,lim);el=Math.max(el,1);
+  const spm=Math.round(good/el*60),acc=strokes?Math.round(good/strokes*100):0;
+  $("s1").textContent=lim?fmt(Math.max(0,Math.ceil(lim-el))):fmt(el);
+  $("s2").textContent=strokes;$("s3").textContent=errs;$("s4").textContent=acc+"%";$("s5").textContent=spm;
+  const res=load();res.push({l:cur,spm,acc,err:errs,t:Math.round(el),d:Date.now()});save(res);build();
+  $("dh").textContent=up?"Time's up":"Lesson complete";
+  $("dr").innerHTML=`<p><span>Time</span><b>${fmt(el)}</b></p><p><span>Strokes</span><b>${strokes}</b></p><p><span>Errors</span><b>${errs}</b></p><p><span>Accuracy</span><b>${acc}%</b></p><p><span>Speed</span><b>${spm} strokes/min</b></p>`;
+  $("d2").style.display=cur<LESSONS.length-1?"":"none";
+  $("dlg").style.display="flex";
+}
+$("d1").onclick=()=>start(cur);$("d2").onclick=()=>start(cur+1);
+$("d3").onclick=()=>{$("dlg").style.display="none";cur=-1;build();show("home")};
+$("nl").onclick=()=>{active=false;clearInterval(timer);show(cur>=0?"train":"home");if(cur>=0){active=true;timer=setInterval(stats,250)}};
+$("np").onclick=()=>{active=false;clearInterval(timer);progress();show("prog")};
+$("nk").onclick=()=>{kbOn=!kbOn;try{localStorage.setItem("tt_kb",kbOn?"1":"0")}catch(e){}applyKb()};
+document.querySelectorAll("header button").forEach(b=>b.addEventListener("click",()=>b.blur()));
+function progress(){
+  const res=load();
+  let h="<table><tr><th>Lesson</th><th>Attempts</th><th>Best speed</th><th>Avg accuracy</th><th>Last speed</th></tr>";
+  LESSONS.forEach((l,i)=>{const r=res.filter(x=>x.l===i);
+    h+=`<tr><td>${i+1} (${l.split("").join(" ")})</td><td>${r.length}</td><td>${r.length?Math.max(...r.map(x=>x.spm)):"-"}</td><td>${r.length?Math.round(r.reduce((a,x)=>a+x.acc,0)/r.length)+"%":"-"}</td><td>${r.length?r[r.length-1].spm:"-"}</td></tr>`});
+  $("tb").innerHTML=h+"</table>";
+  const c=$("cv"),g=c.getContext("2d");g.clearRect(0,0,c.width,c.height);
+  const d=res.slice(-30);g.fillStyle="#56607a";g.font="12px sans-serif";
+  if(!d.length){g.fillText("Finish a lesson to see your speed chart.",20,30);return}
+  const mx=Math.max(50,...d.map(x=>x.spm))*1.1,W=c.width-60,H=c.height-40;
+  g.strokeStyle="#d3d8e2";for(let k=0;k<=4;k++){const y=10+H*k/4;g.beginPath();g.moveTo(45,y);g.lineTo(c.width-10,y);g.stroke();g.fillText(Math.round(mx*(1-k/4)),8,y+4)}
+  g.strokeStyle="#2f6fdb";g.lineWidth=2;g.beginPath();
+  d.forEach((x,k)=>{const px=45+W*(d.length>1?k/(d.length-1):.5),py=10+H*(1-x.spm/mx);k?g.lineTo(px,py):g.moveTo(px,py)});g.stroke();
+  d.forEach((x,k)=>{const px=45+W*(d.length>1?k/(d.length-1):.5),py=10+H*(1-x.spm/mx);g.fillStyle="#2f6fdb";g.beginPath();g.arc(px,py,4,0,7);g.fill();g.fillStyle="#56607a";g.fillText("L"+(x.l+1),px-8,c.height-8)});
+}
+$("rs").onclick=()=>{if(confirm("Delete all saved progress?")){save([]);build();progress()}};
+kbBuild();applyKb();build();
+</script></body></html>
